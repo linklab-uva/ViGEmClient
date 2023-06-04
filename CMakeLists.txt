@@ -39,5 +39,5 @@ install(EXPORT ${PROJECT_NAME}-export
 	NAMESPACE ${PROJECT_NAME}::
 	DESTINATION cmake
 )
-configure_file(${PROJECT_NAME}-config.cmake.in ${PROJECT_NAME}-config.cmake @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake DESTINATION cmake/)
+configure_file(ViGEmClient-config.cmake.in ViGEmClient-config.cmake @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/ViGEmClient-config.cmake DESTINATION cmake/)
