@@ -1,6 +1,14 @@
+cmake_minimum_required(VERSION 3.23.2)
 project(vigem_client CXX)
-cmake_minimum_required(VERSION 3.20.2)
+find_package(ament_cmake QUIET)
 
+if(NOT MSVC)
+	message(STATUS "vigem_client only supported on Windows. Not building")
+	if(ament_cmake_FOUND)
+		ament_package()
+	endif()
+	return()
+endif()
 # use -DViGEmClient_DLL=ON on the cmake command line to change this value
 option(ViGEmClient_DLL "Generate a dynamic library instead of a static library" OFF)
 
@@ -29,15 +37,20 @@ install(DIRECTORY include/ViGEm
 	FILES_MATCHING PATTERN "*.h"
 )
 install(TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}-export
+    EXPORT export_${PROJECT_NAME}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
-install(EXPORT ${PROJECT_NAME}-export
-	FILE ${PROJECT_NAME}Targets.cmake
-	NAMESPACE ${PROJECT_NAME}::
-	DESTINATION cmake
-)
-configure_file(ViGEmClient-config.cmake.in ViGEmClient-config.cmake @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/ViGEmClient-config.cmake DESTINATION cmake/)
+if(${ament_cmake_FOUND})
+	ament_export_targets(export_${PROJECT_NAME})
+	ament_package()
+else()
+	install(EXPORT export_${PROJECT_NAME}
+		FILE ${PROJECT_NAME}Targets.cmake
+		NAMESPACE ${PROJECT_NAME}::
+		DESTINATION cmake
+	)
+	configure_file(${PROJECT_NAME}Config.cmake.in ${PROJECT_NAME}Config.cmake @ONLY)
+	install(FILES ${PROJECT_NAME}Config.cmake DESTINATION cmake/)
+endif()
