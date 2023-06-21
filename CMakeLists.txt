@@ -1,6 +1,9 @@
+set(_required_cmake 3.15)
+cmake_minimum_required (VERSION ${_required_cmake} FATAL_ERROR)
+cmake_policy(VERSION ${_required_cmake})
 project(vigem_client CXX)
-cmake_minimum_required(VERSION 3.20.2)
 
+find_package(ament_cmake QUIET)
 # use -DViGEmClient_DLL=ON on the cmake command line to change this value
 option(ViGEmClient_DLL "Generate a dynamic library instead of a static library" OFF)
 
@@ -13,9 +16,11 @@ if(ViGEmClient_DLL)
 		PUBLIC "VIGEM_DYNAMIC"
 		PRIVATE "VIGEM_EXPORTS"
 	)
+	set(VIGEM_DYNAMIC True)
 else()
 	# Generate a static library, no link dependencies needed
 	add_library(${PROJECT_NAME} STATIC ${SOURCES})
+	set(VIGEM_DYNAMIC False)
 endif()
 
 target_include_directories(${PROJECT_NAME} 
@@ -29,15 +34,20 @@ install(DIRECTORY include/ViGEm
 	FILES_MATCHING PATTERN "*.h"
 )
 install(TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}-export
+    EXPORT export_${PROJECT_NAME}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
-install(EXPORT ${PROJECT_NAME}-export
+install(EXPORT export_${PROJECT_NAME}
 	FILE ${PROJECT_NAME}Targets.cmake
 	NAMESPACE ${PROJECT_NAME}::
 	DESTINATION cmake
 )
-configure_file(ViGEmClient-config.cmake.in ViGEmClient-config.cmake @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/ViGEmClient-config.cmake DESTINATION cmake/)
+if(${ament_cmake_FOUND})
+	ament_export_targets(export_${PROJECT_NAME})
+	ament_package(CONFIG_EXTRAS vigem_client_cmake_extras.cmake.in)
+else()
+	configure_file(ViGEmClient-config.cmake.in vigem_client-config.cmake @ONLY)
+	install(FILES ${CMAKE_BINARY_DIR}/vigem_client-config.cmake DESTINATION cmake/)
+endif()
