@@ -4,6 +4,13 @@ cmake_policy(VERSION ${_required_cmake})
 project(vigem_client CXX)
 
 find_package(ament_cmake QUIET)
+if(NOT MSVC)
+	message(STATUS "vigem_client only supported on Windows. Not building")
+	if(ament_cmake_FOUND)
+		ament_package()
+	endif()
+	return()
+endif()
 # use -DViGEmClient_DLL=ON on the cmake command line to change this value
 option(ViGEmClient_DLL "Generate a dynamic library instead of a static library" OFF)
 

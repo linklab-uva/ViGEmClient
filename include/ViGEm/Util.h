@@ -1,5 +1,7 @@
 #pragma once
-
+#ifdef OOGABOOGA
+    #include <windows.h>
+#endif
 #include "ViGEm/Common.h"
 #include <limits.h>
 
